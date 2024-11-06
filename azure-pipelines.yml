@@ -1,21 +1,19 @@
-# Node.js with React
-# Build a Node.js project that uses React.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+name: Azure Terraform Deployment
+on:
+  push:
+    branches: [main]
 
-trigger:
-- master
-
-pool:
-  vmImage: ubuntu-latest
-
-steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '10.x'
-  displayName: 'Install Node.js'
-
-- script: |
-    npm install
-    npm run build
-  displayName: 'npm install and build'
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-azure@v3
+        with:
+          azure-credential-file: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Initialize Terraform
+        run: terraform init
+      - name: Plan Terraform
+        run: terraform plan
+      - name: Apply Terraform
+        run: terraform apply -auto-approve
